@@ -9,6 +9,3 @@ function con(mas) {
   }
 
 console.log(`Hi ${con(name)}!`);
-
-
-    
