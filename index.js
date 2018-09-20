@@ -1,9 +1,9 @@
-const name = [];
+let name = [];
 
-for (var i = 2; i<process.argv.length; i++) name[i-2] = process.argv[i];
+for (let i = 2; i<process.argv.length; i++) name[i-2] = process.argv[i];
 
 function con(mas) {
-    var s = ""
+    let s = ""
     for(var i=0; i<mas.length; i++) s += mas[i] + " "
     return s
   }
