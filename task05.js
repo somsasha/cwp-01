@@ -1,7 +1,7 @@
 const input = process.argv[2];
 var path = require('path');
 const fs = require('fs');
-const folderName = path.relative(path.dirname(process.cwd()), process.cwd());
+const folder = path.relative(path.dirname(input), input);
 var copyright = "";
 
 fs.readFile(process.cwd() + "\\config.json", (err, data) => {
@@ -9,23 +9,22 @@ fs.readFile(process.cwd() + "\\config.json", (err, data) => {
 							copyright = jsonObj.copyright;
 						})
 
-function readFolder(dir)
+function readFolder(file_path)
 {
-	console.log("Jump into folder");
-	fs.readdir(dir, (err, files) => {
+	fs.readdir(file_path, (err, items) => {
 		if (err) throw err; 
-		files.forEach(file => {
-			fs.stat(path.resolve(dir, file), (err, stat) => {
-				const filedir = path.resolve(dir, file);
-				if (stat && stat.isDirectory() & file != ".git" & file != folderName) {
+		items.forEach(item => {
+			fs.stat(path.resolve(file_path, item), (err, stat) => {
+				const filedir = path.resolve(file_path, item);
+				if (stat && stat.isDirectory() & item != ".git" & item != folder) {
 					readFolder(filedir)
 				}
 				else {
-					fs.appendFile("summary.js","console.log(\"" + path.relative(input, filedir) + "\");\n", (err) => {
+					fs.appendFile("summary.js","console.log(\"" + path.relative(file_path, filedir) + "\");\n", (err) => {
 						if (err) throw err;
 						if (path.extname(filedir) == ".txt")
 						{
-							var copyFileDir = process.cwd() + "\\" + folderName + "\\" + file;
+							var copyFileDir = input + "\\" + folder + "\\" + item;
 							fs.writeFile(copyFileDir, copyright, (err) => {
 								fs.readFile(filedir, (err, data) => {
 									fs.appendFile(copyFileDir, data, (err) => {
@@ -47,12 +46,12 @@ fs.writeFile("summary.js", "//v0.1\n", (err) => {
 	if (err) throw err;
 })
 
-fs.mkdir(input + "\\" + folderName, (err) => {
+fs.mkdir(input + "\\" + folder, (err) => {
 });
 
 readFolder(input);
 
 
-fs.watch(process.cwd() + "\\" + folderName, (eventType, filename) => {
+fs.watch(input + "\\" + folder, (eventType, filename) => {
 							if (eventType == "change") { console.log(filename); }
 						})
