@@ -53,6 +53,6 @@ fs.mkdir(input + "\\" + folderName, (err) => {
 readFolder(input);
 
 
-//fs.watch(process.cwd() + "\\" + folderName, (eventType, filename) => {
-//							if (eventType == "change") { console.log(filename); }
-//						})
+fs.watch(process.cwd() + "\\" + folderName, (eventType, filename) => {
+							if (eventType == "change") { console.log(filename); }
+						})
