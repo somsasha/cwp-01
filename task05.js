@@ -1,32 +1,58 @@
-let path = "";
-//path+=process.argv[2];
-path+='D:\\SaNyA\\BSTU\\PSCA\\cwp-01\\task05_test\\';
+const input = process.argv[2];
+var path = require('path');
+const fs = require('fs');
+const folderName = path.relative(path.dirname(process.cwd()), process.cwd());
+var copyright = "";
 
-let summary = "";
+fs.readFile(process.cwd() + "\\config.json", (err, data) => {
+							const jsonObj = JSON.parse(data);
+							copyright = jsonObj.copyright;
+						})
 
-var fs = require('fs');
-
-function scandir(paths){
-fs.readdir(paths, function(err, items){
-    for (var i = 0; i<items.length; i++) {
-        if(items[i].indexOf('.') != -1)
-            summary+="console.log(" + items[i] + "); ";
-        else
-            scandir(paths + items[i] + "\\")
-    }
-});
-writesummary(paths);
-}
-
-scandir(path) => writesummary(path);
-
-function writesummary(paths){
-fs.writeFile(paths+='summary.js', summary, function(err)
+function readFolder(dir)
 {
-    if(err) {
-        return console.log("ERROR: Bad path, {" + err + "}");
-    } else {
-        //console.log("File saved");
-    }
-});
+	console.log("Jump into folder");
+	fs.readdir(dir, (err, files) => {
+		if (err) throw err; 
+		files.forEach(file => {
+			fs.stat(path.resolve(dir, file), (err, stat) => {
+				const filedir = path.resolve(dir, file);
+				if (stat && stat.isDirectory() & file != ".git" & file != folderName) {
+					readFolder(filedir)
+				}
+				else {
+					fs.appendFile("summary.js","console.log(\"" + path.relative(input, filedir) + "\");\n", (err) => {
+						if (err) throw err;
+						if (path.extname(filedir) == ".txt")
+						{
+							var copyFileDir = process.cwd() + "\\" + folderName + "\\" + file;
+							fs.writeFile(copyFileDir, copyright, (err) => {
+								fs.readFile(filedir, (err, data) => {
+									fs.appendFile(copyFileDir, data, (err) => {
+										fs.appendFile(copyFileDir, copyright, (err) => {
+											console.log(copyFileDir);
+										})
+									})
+								});
+							})
+						}
+					});
+
+				}
+			})
+		})
+	})
 }
+fs.writeFile("summary.js", "//v0.1\n", (err) => {
+	if (err) throw err;
+})
+
+fs.mkdir(input + "\\" + folderName, (err) => {
+});
+
+readFolder(input);
+
+
+//fs.watch(process.cwd() + "\\" + folderName, (eventType, filename) => {
+//							if (eventType == "change") { console.log(filename); }
+//						})
